@@ -261,7 +261,7 @@ OBJ += $(BUILD)/pins_$(BOARD).o
 $(BUILD)/$(FATFS_DIR)/ff.o: COPT += -Os
 $(BUILD)/$(HAL_DIR)/src/stm32$(MCU_SERIES)xx_hal_sd.o: COPT += -Os
 
-all: $(BUILD)/firmware.dfu $(BUILD)/firmware.hex
+all: $(BUILD)/firmware.bin $(BUILD)/firmware.dfu $(BUILD)/firmware.hex
 
 .PHONY: deploy
 
@@ -273,8 +273,13 @@ else
 	$(Q)$(DFU_UTIL) -a 0 -d $(DEVICE) -D $<
 endif
 
+$(BUILD)/firmware.bin: $(BUILD)/firmware.elf
+	$(ECHO) "Create $@"
+	$(Q)$(OBJCOPY) -O binary $< $@
+
 $(BUILD)/firmware.dfu: $(BUILD)/firmware.elf
 	$(ECHO) "Create $@"
+	$(Q)$(OBJCOPY) -O binary $^ $(BUILD)/firmware.bin
 	$(Q)$(OBJCOPY) -O binary -j .isr_vector $^ $(BUILD)/firmware0.bin
 	$(Q)$(OBJCOPY) -O binary -j .text -j .data $^ $(BUILD)/firmware1.bin
 	$(Q)$(PYTHON) $(DFU) -b 0x08000000:$(BUILD)/firmware0.bin -b 0x08020000:$(BUILD)/firmware1.bin $@
