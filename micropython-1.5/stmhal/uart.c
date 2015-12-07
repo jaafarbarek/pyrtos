@@ -34,6 +34,9 @@
 #include "py/stream.h"
 #include "uart.h"
 #include "pybioctl.h"
+#include "py/runtime.h"
+#include "pendsv.h"
+
 #include MICROPY_HAL_H
 
 //TODO: Add UART7/8 support for MCU_SERIES_F7
@@ -92,6 +95,7 @@ struct _pyb_uart_obj_t {
     byte *read_buf;                     // byte or uint16_t, depending on char size
 };
 
+static int user_interrupt_char = -1;
 STATIC mp_obj_t pyb_uart_deinit(mp_obj_t self_in);
 
 void uart_init0(void) {
@@ -342,6 +346,13 @@ void uart_tx_strn_cooked(pyb_uart_obj_t *uart_obj, const char *str, uint len) {
     }
 }
 
+void uart_set_interrupt_char(int c) {
+    if (c != -1) {
+        mp_obj_exception_clear_traceback(MP_STATE_PORT(mp_const_vcp_interrupt));
+    }
+    user_interrupt_char = c;
+}
+
 // this IRQ handler is set up to handle RXNE interrupts only
 void uart_irq_handler(mp_uint_t uart_id) {
     // get the uart object
@@ -360,6 +371,11 @@ void uart_irq_handler(mp_uint_t uart_id) {
         int data = self->uart.Instance->DR; // clears UART_FLAG_RXNE
         #endif
         data &= self->char_mask;
+
+        if (user_interrupt_char != -1 && user_interrupt_char == data) {
+            pendsv_nlr_jump(MP_STATE_PORT(mp_const_vcp_interrupt));
+        }
+
         if (self->read_buf_len != 0) {
             uint16_t next_head = (self->read_buf_head + 1) % self->read_buf_len;
             if (next_head != self->read_buf_tail) {
