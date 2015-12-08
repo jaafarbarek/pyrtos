@@ -6,16 +6,18 @@
 #include STM32_HAL_H
 #include "py/mpconfig.h"
 
-/* Priorities for the demo application tasks. */
-#define mainFLASH_TASK_PRIORITY				( tskIDLE_PRIORITY + 1UL )
-#define mainQUEUE_POLL_PRIORITY				( tskIDLE_PRIORITY + 2UL )
-#define mainSEM_TEST_PRIORITY				( tskIDLE_PRIORITY + 1UL )
-#define mainBLOCK_Q_PRIORITY				( tskIDLE_PRIORITY + 2UL )
-#define mainCREATOR_TASK_PRIORITY			( tskIDLE_PRIORITY + 3UL )
-#define mainFLOP_TASK_PRIORITY				( tskIDLE_PRIORITY )
+#define MICROPYTHON_TASK_PRIORITY       (2)
+#define MICROPYTHON_TASK_STACK_SIZE     ((6 * 1024) + 512)
+
+#define LED_TASK_PRIORITY               (2)
+#define LED_TASK_STACK_SIZE             (configMINIMAL_STACK_SIZE)
 
 void SystemClock_Config(void);
 extern void LedTask(void *pvParameters);
+extern void MicroPythonTask(void *pvParameters);
+
+extern void MP_PendSV_Handler(void);
+extern void MP_SysTick_Handler(void);
 
 void vApplicationIdleHook(void)
 {
@@ -24,7 +26,7 @@ void vApplicationIdleHook(void)
 
 void vApplicationTickHook( void )
 {
-
+    MP_SysTick_Handler();
 }
 
 void vApplicationMallocFailedHook( void )
@@ -89,7 +91,10 @@ int main(void)
     #endif
 
     /* Create the LED task */
-    xTaskCreate(LedTask, "LedTask", configMINIMAL_STACK_SIZE, (void *) NULL, tskIDLE_PRIORITY, NULL);
+    xTaskCreate(LedTask, "LedTask", LED_TASK_STACK_SIZE, (void *) NULL, LED_TASK_PRIORITY, NULL);
+
+    /* Create MicroPython task */
+    xTaskCreate(MicroPythonTask, "MicroPython", MICROPYTHON_TASK_STACK_SIZE, (void *) NULL, MICROPYTHON_TASK_PRIORITY, NULL);
 
 
 	/* Start the scheduler. */
