@@ -23,6 +23,7 @@ HAL_DIR=hal/$(MCU_SERIES)
 USBDEV_DIR=usbdev
 #USBHOST_DIR=usbhost
 FATFS_DIR=lib/fatfs
+RTOS_DIR=rtos
 DFU=../tools/dfu.py
 # may need to prefix dfu-util with sudo
 USE_PYDFU ?= 0
@@ -39,6 +40,8 @@ INC += -I$(CMSIS_DIR)/inc
 INC += -I$(CMSIS_DIR)/devinc
 INC += -I$(HAL_DIR)/inc
 INC += -I$(USBDEV_DIR)/core/inc -I$(USBDEV_DIR)/class/inc
+INC += -I$(RTOS_DIR)/include
+INC += -I$(RTOS_DIR)/portable/GCC/ARM_CM4F/
 #INC += -I$(USBHOST_DIR)
 INC += -I../lib/mp-readline
 INC += -I../lib/netutils
@@ -161,6 +164,7 @@ SRC_C = \
 	servo.c \
 	dac.c \
 	adc.c \
+    ledtask.c \
 	$(wildcard boards/$(BOARD)/*.c)
 
 SRC_O = \
@@ -244,6 +248,17 @@ SRC_MOD += $(addprefix $(CC3000_DIR)/src/,\
 	)
 endif
 
+SRC_RTOS = $(addprefix $(RTOS_DIR)/,\
+    croutine.c \
+    event_groups.c \
+    list.c \
+    queue.c \
+    tasks.c \
+    timers.c \
+    portable/GCC/ARM_CM4F/port.c \
+    portable/MemMang/heap_4.c \
+	)
+
 OBJ =
 OBJ += $(PY_O)
 OBJ += $(addprefix $(BUILD)/, $(SRC_LIB:.c=.o))
@@ -252,6 +267,7 @@ OBJ += $(addprefix $(BUILD)/, $(SRC_O))
 OBJ += $(addprefix $(BUILD)/, $(SRC_HAL:.c=.o))
 OBJ += $(addprefix $(BUILD)/, $(SRC_USBDEV:.c=.o))
 OBJ += $(addprefix $(BUILD)/, $(SRC_MOD:.c=.o))
+OBJ += $(addprefix $(BUILD)/, $(SRC_RTOS:.c=.o))
 OBJ += $(BUILD)/pins_$(BOARD).o
 
 # We put ff.o and stm32f4xx_hal_sd.o into the first 16K section with the ISRs.
