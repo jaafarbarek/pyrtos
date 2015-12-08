@@ -165,6 +165,7 @@ SRC_C = \
 	dac.c \
 	adc.c \
     ledtask.c \
+    mptask.c \
 	$(wildcard boards/$(BOARD)/*.c)
 
 SRC_O = \
