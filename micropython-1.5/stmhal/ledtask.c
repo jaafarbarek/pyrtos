@@ -15,13 +15,11 @@ void LedTask(void *pvParameters)
     GPIO_InitStructure.Speed = GPIO_SPEED_FAST;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStructure); 
 
-    const TickType_t xDelay = 1000 / portTICK_PERIOD_MS;
-
     /* Toggle LED in an infinite loop */  
     while (1) {
         HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
 
         /* Insert a 1000ms delay */
-        vTaskDelay(xDelay);
+        HAL_Delay(1000);
     }
 }
