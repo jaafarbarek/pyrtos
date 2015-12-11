@@ -22,7 +22,7 @@ _estack = ORIGIN(RAM) + LENGTH(RAM) - 1;
 
 /* RAM extents for the garbage collector */
 _ram_end = ORIGIN(RAM) + LENGTH(RAM);
-_heap_end = 0x2001c000; /* tunable */
+_heap_end = 0x2001d000; /* tunable */
 
 /* define output sections */
 SECTIONS
