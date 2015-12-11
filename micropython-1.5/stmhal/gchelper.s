@@ -4,6 +4,16 @@
     .text
     .align  2
 
+@ uint gc_helper_get_sp(void)
+    .global gc_helper_get_sp
+    .thumb
+    .thumb_func
+    .type   gc_helper_get_sp, %function
+gc_helper_get_sp:
+    @ return the sp
+    mov     r0, sp
+    bx      lr
+
 @ uint gc_helper_get_regs_and_sp(r0=uint regs[10])
     .global gc_helper_get_regs_and_sp
     .thumb
