@@ -37,3 +37,5 @@ extern uint32_t _heap_start;
 extern uint32_t _heap_end;
 extern uint32_t _estack;
 extern uint32_t _ram_end;
+
+void gc_collect_init ();

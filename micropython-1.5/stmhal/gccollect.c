@@ -32,14 +32,16 @@
 #include "gccollect.h"
 #include "systick.h"
 
-mp_uint_t gc_helper_get_regs_and_sp(mp_uint_t *regs);
+static uint32_t stackend;
+extern mp_uint_t gc_helper_get_sp(void);
+extern mp_uint_t gc_helper_get_regs_and_sp(mp_uint_t *regs);
+
+void gc_collect_init (uint32_t sp) {
+    // Set the initial stack pointer.
+    stackend = gc_helper_get_sp();
+}
 
 void gc_collect(void) {
-    // get current time, in case we want to time the GC
-    #if 0
-    uint32_t start = sys_tick_get_microseconds();
-    #endif
-
     // start the GC
     gc_collect_start();
 
@@ -48,19 +50,8 @@ void gc_collect(void) {
     mp_uint_t sp = gc_helper_get_regs_and_sp(regs);
 
     // trace the stack, including the registers (since they live on the stack in this function)
-    gc_collect_root((void**)sp, ((uint32_t)&_ram_end - sp) / sizeof(uint32_t));
+    gc_collect_root((void**)sp, (stackend - sp) / sizeof(uint32_t));
 
     // end the GC
     gc_collect_end();
-
-    #if 0
-    // print GC info
-    uint32_t ticks = sys_tick_get_microseconds() - start;
-    gc_info_t info;
-    gc_info(&info);
-    printf("GC@%lu %lums\n", start, ticks);
-    printf(" " UINT_FMT " total\n", info.total);
-    printf(" " UINT_FMT " : " UINT_FMT "\n", info.used, info.free);
-    printf(" 1=" UINT_FMT " 2=" UINT_FMT " m=" UINT_FMT "\n", info.num_1block, info.num_2block, info.max_block);
-    #endif
 }
