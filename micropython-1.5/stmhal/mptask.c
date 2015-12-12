@@ -142,7 +142,7 @@ static const char fresh_main_py[] =
 "    t = time.time()\r\n"
 "    f(ITERS)\r\n"
 "    t = time.time() - t\r\n"
-"    print(t,'ms')\r\n"
+"    print(t,'s')\r\n"
 "\n"
 "def test1(num):\r\n"
 "    i = 0\r\n"
