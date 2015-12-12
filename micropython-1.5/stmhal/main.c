@@ -90,6 +90,7 @@ int main(void)
     MICROPY_BOARD_EARLY_INIT();
     #endif
 
+#if defined(ENABLE_RTOS)
     /* Create the LED task */
     xTaskCreate(LedTask, "LedTask", LED_TASK_STACK_SIZE, (void *) NULL, LED_TASK_PRIORITY, NULL);
 
@@ -99,7 +100,11 @@ int main(void)
 
 	/* Start the scheduler. */
 	vTaskStartScheduler();
+#else
+    // just call the MicroPythonTask
+    MicroPythonTask(NULL);
 
+#endif
 	/* If all is well, the scheduler will now be running, and the following line
 	will never be reached.  If the following line does execute, then there was
 	insufficient FreeRTOS heap memory available for the idle and/or timer tasks

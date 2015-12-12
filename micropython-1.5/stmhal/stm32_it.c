@@ -209,7 +209,11 @@ void DebugMon_Handler(void) {
 //  * @param  None
 //  * @retval None
 //  */
+#if defined(ENABLE_RTOS)
 void MP_PendSV_Handler(void) {
+#else
+void PendSV_Handler(void) {
+#endif
     pendsv_isr_handler();
 }
 
@@ -218,7 +222,11 @@ void MP_PendSV_Handler(void) {
   * @param  None
   * @retval None
   */
+#if defined(ENABLE_RTOS)
 void MP_SysTick_Handler(void) {
+#else
+void SysTick_Handler(void) {
+#endif
     // Instead of calling HAL_IncTick we do the increment here of the counter.
     // This is purely for efficiency, since SysTick is called 1000 times per
     // second at the highest interrupt priority.

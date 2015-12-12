@@ -36,7 +36,18 @@
 // order to reduce power consumption.
 void HAL_Delay(uint32_t Delay) {
     if (query_irq() == IRQ_STATE_ENABLED) {
+        #if defined(ENABLE_RTOS)
         vTaskDelay (Delay / portTICK_PERIOD_MS);
+        #else
+        // IRQs enabled, so can use systick counter to do the delay
+        extern __IO uint32_t uwTick;
+        uint32_t start = uwTick;
+        // Wraparound of tick is taken care of by 2's complement arithmetic.
+        while (uwTick - start < Delay) {
+            // Enter sleep mode, waiting for (at least) the SysTick interrupt.
+            __WFI();
+        }
+        #endif
     } else {
         // IRQs disabled, so need to use a busy loop for the delay.
         // To prevent possible overflow of the counter we use a double loop.

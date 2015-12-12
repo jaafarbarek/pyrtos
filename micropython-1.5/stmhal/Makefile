@@ -30,6 +30,7 @@ USE_PYDFU ?= 0
 PYDFU = ../tools/pydfu.py
 DFU_UTIL ?= dfu-util
 DEVICE=0483:df11
+ENABLE_RTOS ?= 1
 
 CROSS_COMPILE = arm-none-eabi-
 
@@ -57,6 +58,9 @@ CFLAGS += $(CFLAGS_MCU_$(MCU_SERIES))
 CFLAGS += $(COPT)
 CFLAGS += -Iboards/$(BOARD)
 CFLAGS += -DSTM32_HAL_H='<stm32$(MCU_SERIES)xx_hal.h>'
+ifeq ($(ENABLE_RTOS), 1)
+CFLAGS += -DENABLE_RTOS
+endif
 
 LDFLAGS = -nostdlib -T $(LD_FILE) -Map=$(@:.elf=.map) --cref
 LIBS =

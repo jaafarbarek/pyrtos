@@ -427,7 +427,7 @@ void vPortExitCritical( void )
 	}
 }
 /*-----------------------------------------------------------*/
-
+#if defined(ENABLE_RTOS)
 void xPortPendSVHandler( void )
 {
 	/* This is a naked function. */
@@ -484,8 +484,10 @@ void xPortPendSVHandler( void )
 	::"i"(configMAX_SYSCALL_INTERRUPT_PRIORITY)
 	);
 }
+#endif
 /*-----------------------------------------------------------*/
 
+#if defined(ENABLE_RTOS)
 void xPortSysTickHandler( void )
 {
 	/* The SysTick runs at the lowest interrupt priority, so when this interrupt
@@ -504,6 +506,7 @@ void xPortSysTickHandler( void )
 	}
 	portCLEAR_INTERRUPT_MASK_FROM_ISR( 0 );
 }
+#endif
 /*-----------------------------------------------------------*/
 
 #if configUSE_TICKLESS_IDLE == 1
